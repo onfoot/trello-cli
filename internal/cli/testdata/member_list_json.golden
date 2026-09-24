@@ -1,0 +1,16 @@
+[
+  {
+    "id": "5b02e7f4e1facdc393169f9d",
+    "username": "bentleycook",
+    "fullName": "Bentley Cook",
+    "initials": "BC",
+    "confirmed": true
+  },
+  {
+    "id": "5b02e7f4e1facdc393169f9e",
+    "username": "bobloblaw",
+    "fullName": "Bob Loblaw",
+    "initials": "BL",
+    "confirmed": true
+  }
+]

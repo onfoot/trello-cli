@@ -1,0 +1,14 @@
+[
+  {
+    "id": "5ab10be237846c43015f108e",
+    "idModel": "5abbe4b7ddc1b351ef961414",
+    "name": "Priority",
+    "type": "list"
+  },
+  {
+    "id": "5ab10be237846c43015f108f",
+    "idModel": "5abbe4b7ddc1b351ef961414",
+    "name": "ETA",
+    "type": "date"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "boards": [],
+  "cards": [
+    {
+      "id": "5abbe4b7ddc1b351ef961417",
+      "name": "Ship it",
+      "closed": false,
+      "idBoard": "5abbe4b7ddc1b351ef961414",
+      "idList": "5abbe4b7ddc1b351ef961415",
+      "shortLink": "AbCdEf01",
+      "pos": 65535
+    }
+  ],
+  "members": [
+    {
+      "id": "5b02e7f4e1facdc393169f9d",
+      "username": "bentleycook",
+      "fullName": "Bentley Cook",
+      "initials": "BC",
+      "confirmed": true
+    }
+  ],
+  "organizations": []
+}

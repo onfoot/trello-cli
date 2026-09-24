@@ -1,0 +1,18 @@
+[
+  {
+    "id": "5bc79d4206526d2279c1e6ea",
+    "name": "Notice",
+    "mimeType": "application/pdf",
+    "bytes": 52845,
+    "url": "https://example.com/notice.pdf",
+    "isUpload": false
+  },
+  {
+    "id": "5bc79d4206526d2279c1e6eb",
+    "name": "Image",
+    "mimeType": "image/png",
+    "bytes": 1234,
+    "url": "https://example.com/img.png",
+    "isUpload": true
+  }
+]

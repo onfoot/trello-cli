@@ -1,0 +1,14 @@
+[
+  {
+    "id": "5abbe4b7ddc1b351ef961419",
+    "idBoard": "5abbe4b7ddc1b351ef961414",
+    "name": "Overdue",
+    "color": "red"
+  },
+  {
+    "id": "5abbe4b7ddc1b351ef96141a",
+    "idBoard": "5abbe4b7ddc1b351ef961414",
+    "name": "Needs review",
+    "color": "blue"
+  }
+]

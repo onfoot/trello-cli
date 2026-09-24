@@ -1,0 +1,28 @@
+[
+  {
+    "id": "5dc9b507756e182c76007621",
+    "name": "Release checklist",
+    "idBoard": "5abbe4b7ddc1b351ef961414",
+    "checkItems": [
+      {
+        "id": "5dc9b509f02f4314edc4303a",
+        "idChecklist": "5dc9b507756e182c76007621",
+        "name": "Update docs",
+        "state": "complete",
+        "pos": 1673
+      },
+      {
+        "id": "5dc9b509f02f4314edc4303b",
+        "idChecklist": "5dc9b507756e182c76007621",
+        "name": "Tag release",
+        "state": "incomplete",
+        "pos": 32767
+      }
+    ]
+  },
+  {
+    "id": "5dc9b507756e182c76007622",
+    "name": "QA checklist",
+    "idBoard": "5abbe4b7ddc1b351ef961414"
+  }
+]

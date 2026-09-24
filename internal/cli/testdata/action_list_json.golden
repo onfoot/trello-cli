@@ -1,0 +1,56 @@
+[
+  {
+    "id": "5dc9b507756e182c76007621",
+    "idMemberCreator": "5b02e7f4e1facdc393169f9d",
+    "type": "commentCard",
+    "date": "2020-03-09T19:41:51.396Z",
+    "data": {
+      "text": "Can never go wrong with bowie",
+      "card": {
+        "id": "5abbe4b7ddc1b351ef961417",
+        "name": "Bowie",
+        "idShort": 7,
+        "shortLink": "AbCdEf01"
+      },
+      "board": {
+        "id": "5abbe4b7ddc1b351ef961414",
+        "name": "Mullets",
+        "shortLink": "3CsPkqOF"
+      }
+    },
+    "memberCreator": {
+      "id": "5b02e7f4e1facdc393169f9d",
+      "username": "bentleycook",
+      "fullName": "Bentley Cook",
+      "initials": "BC",
+      "confirmed": true
+    }
+  },
+  {
+    "id": "5dc9b507756e182c76007622",
+    "idMemberCreator": "5b02e7f4e1facdc393169f9e",
+    "type": "updateCard",
+    "date": "2020-03-10T10:00:00Z",
+    "data": {
+      "card": {
+        "id": "5abbe4b7ddc1b351ef961417",
+        "name": "Bowie"
+      },
+      "board": {
+        "id": "5abbe4b7ddc1b351ef961414",
+        "name": "Mullets"
+      },
+      "list": {
+        "id": "5abbe4b7ddc1b351ef961415",
+        "name": "Amazing"
+      }
+    },
+    "memberCreator": {
+      "id": "5b02e7f4e1facdc393169f9e",
+      "username": "bobloblaw",
+      "fullName": "Bob Loblaw",
+      "initials": "BL",
+      "confirmed": true
+    }
+  }
+]

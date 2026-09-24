@@ -1,0 +1,12 @@
+{
+  "id": "5abbe4b7ddc1b351ef961417",
+  "name": "Ship it",
+  "desc": "Ship the release",
+  "closed": false,
+  "idBoard": "5abbe4b7ddc1b351ef961414",
+  "idList": "5abbe4b7ddc1b351ef961415",
+  "shortLink": "AbCdEf01",
+  "url": "https://trello.com/c/AbCdEf01/ship-it",
+  "pos": 65535,
+  "due": "2026-09-04T12:00:00Z"
+}

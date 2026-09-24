@@ -1,0 +1,35 @@
+[
+  {
+    "id": "5dc591ac425f2a223aba0a8e",
+    "type": "cardDueSoon",
+    "date": "2019-11-08T16:02:52.763Z",
+    "unread": true,
+    "data": {
+      "card": {
+        "id": "5abbe4b7ddc1b351ef961417",
+        "name": "Bowie"
+      },
+      "board": {
+        "id": "5abbe4b7ddc1b351ef961414",
+        "name": "Mullets"
+      }
+    }
+  },
+  {
+    "id": "5dc591ac425f2a223aba0a8f",
+    "type": "mentionedOnCard",
+    "date": "2019-11-09T09:00:00Z",
+    "unread": false,
+    "data": {
+      "text": "please review",
+      "card": {
+        "id": "5abbe4b7ddc1b351ef961418",
+        "name": "Release"
+      },
+      "board": {
+        "id": "5abbe4b7ddc1b351ef961414",
+        "name": "Mullets"
+      }
+    }
+  }
+]

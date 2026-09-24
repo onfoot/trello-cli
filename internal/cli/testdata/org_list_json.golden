@@ -1,0 +1,16 @@
+[
+  {
+    "id": "5abbe4b7ddc1b351ef961414",
+    "name": "acme",
+    "displayName": "Acme Inc",
+    "desc": "The Acme team",
+    "url": "https://trello.com/acme",
+    "website": "https://acme.example.com"
+  },
+  {
+    "id": "5abbe4b7ddc1b351ef961415",
+    "name": "globex",
+    "displayName": "Globex",
+    "url": "https://trello.com/globex"
+  }
+]

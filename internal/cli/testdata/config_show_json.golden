@@ -1,0 +1,15 @@
+{
+  "board": {
+    "present": true,
+    "value": "my-board",
+    "source": "<HOME>/.trello.yaml"
+  },
+  "key": {
+    "present": true,
+    "source": "<HOME>/.trello.yaml"
+  },
+  "token": {
+    "present": true,
+    "source": "<HOME>/.config/trello/config.yaml"
+  }
+}

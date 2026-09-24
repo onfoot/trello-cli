@@ -1,0 +1,6 @@
+# Local config — may contain API credentials
+.trello.yaml
+.trello.yml
+
+# Built binary
+/trello

@@ -1,0 +1,3 @@
+board:  my-board (from: <HOME>/.trello.yaml)
+key:    present (from: <HOME>/.trello.yaml)
+token:  present (from: <HOME>/.config/trello/config.yaml)

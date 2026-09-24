@@ -1,0 +1,16 @@
+{
+  "boards": [],
+  "cards": [
+    {
+      "id": "5abbe4b7ddc1b351ef961417",
+      "name": "Ship it",
+      "closed": false,
+      "idBoard": "5abbe4b7ddc1b351ef961414",
+      "idList": "5abbe4b7ddc1b351ef961415",
+      "shortLink": "AbCdEf01",
+      "pos": 65535
+    }
+  ],
+  "members": [],
+  "organizations": []
+}
