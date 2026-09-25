@@ -3,6 +3,7 @@ Name:    Ship it
 Desc:    Ship the release
 List:    5abbe4b7ddc1b351ef961415
 Board:   5abbe4b7ddc1b351ef961414
+Labels:  Overdue (red), Needs review (blue)
 Closed:  false
 Due:     2026-09-04T12:00:00Z
 Pos:     65535

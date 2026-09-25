@@ -39,6 +39,92 @@ func TestRawGet(t *testing.T) {
 	}
 }
 
+// A query string embedded in the path must not swallow the injected
+// credentials (regression for the 401 "invalid key" production bug).
+func TestRawEmbeddedQueryString(t *testing.T) {
+	var gotPath, gotKey, gotToken, gotFields string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		gotKey = r.URL.Query().Get("key")
+		gotToken = r.URL.Query().Get("token")
+		gotFields = r.URL.Query().Get("fields")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	code, _, _ := runCLI(t, []string{"raw", "GET", "/cards/c1?fields=labels"}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if gotPath != "/cards/c1" {
+		t.Errorf("path = %q, want /cards/c1", gotPath)
+	}
+	if gotKey != "k" || gotToken != "t" {
+		t.Errorf("key/token injection: key=%q token=%q", gotKey, gotToken)
+	}
+	if gotFields != "labels" {
+		t.Errorf("fields = %q, want labels", gotFields)
+	}
+}
+
+// A leading "/1" REST version prefix is stripped, since the base URL already
+// ends in /1.
+func TestRawStripsVersionPrefix(t *testing.T) {
+	var gotPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	code, _, _ := runCLI(t, []string{"raw", "GET", "/1/cards/c1?fields=labels"}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if gotPath != "/cards/c1" {
+		t.Errorf("path = %q, want /cards/c1", gotPath)
+	}
+}
+
+// An embedded path query and -q/--query values are merged.
+func TestRawMergesEmbeddedAndFlagQuery(t *testing.T) {
+	var gotFields, gotMembers string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotFields = r.URL.Query().Get("fields")
+		gotMembers = r.URL.Query().Get("members")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	code, _, _ := runCLI(t, []string{
+		"raw", "GET", "/cards/c1?fields=labels", "-q", "members=true",
+	}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if gotFields != "labels" || gotMembers != "true" {
+		t.Errorf("merged query: fields=%q members=%q, want labels/true", gotFields, gotMembers)
+	}
+}
+
+// A bare "/1" path normalizes to the API root.
+func TestRawVersionOnlyPathStripsToRoot(t *testing.T) {
+	var gotPath string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	code, _, _ := runCLI(t, []string{"raw", "GET", "/1"}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if gotPath != "/" {
+		t.Errorf("path = %q, want /", gotPath)
+	}
+}
+
 func TestRawJSONMode(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, `{"id":"m1"}`)

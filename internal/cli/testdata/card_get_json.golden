@@ -5,6 +5,20 @@
   "closed": false,
   "idBoard": "5abbe4b7ddc1b351ef961414",
   "idList": "5abbe4b7ddc1b351ef961415",
+  "labels": [
+    {
+      "id": "5abbe4b7ddc1b351ef961419",
+      "idBoard": "5abbe4b7ddc1b351ef961414",
+      "name": "Overdue",
+      "color": "red"
+    },
+    {
+      "id": "5abbe4b7ddc1b351ef96141a",
+      "idBoard": "5abbe4b7ddc1b351ef961414",
+      "name": "Needs review",
+      "color": "blue"
+    }
+  ],
   "shortLink": "AbCdEf01",
   "url": "https://trello.com/c/AbCdEf01/ship-it",
   "pos": 65535,

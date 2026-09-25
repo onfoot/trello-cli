@@ -39,6 +39,7 @@ type Card struct {
 	Closed           bool       `json:"closed"`
 	IDBoard          string     `json:"idBoard,omitempty"`
 	IDList           string     `json:"idList,omitempty"`
+	Labels           []Label    `json:"labels,omitempty"`
 	IDShort          int        `json:"idShort,omitempty"`
 	ShortLink        string     `json:"shortLink,omitempty"`
 	ShortURL         string     `json:"shortUrl,omitempty"`

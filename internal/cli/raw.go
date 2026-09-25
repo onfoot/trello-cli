@@ -30,11 +30,16 @@ func (a *App) newRawCmd() *cobra.Command {
 		Long: `Make an untyped request to the Trello API and print the raw JSON
 response.
 
-<method> is one of GET, POST, PUT, or DELETE. <path> is the API path
-starting with "/", e.g. /members/me. The key and token are injected
-automatically. Use -q/--query to add query parameters (repeatable).`,
+<method> is one of GET, POST, PUT, or DELETE. <path> is relative to the
+API root (https://api.trello.com/1) and must start with "/", e.g.
+/members/me; a leading "/1" version prefix is accepted and stripped.
+Any query string embedded in <path> is merged with the -q/--query
+values. The key and token are injected automatically. Use -q/--query
+to add query parameters (repeatable).`,
 		Example: `  trello raw GET /members/me
   trello raw GET /boards/5abbe4b7ddc1b351ef961414/lists --query fields=id,name
+  trello raw GET /cards/5abbe4b7ddc1b351ef961416?fields=labels
+  trello raw GET /1/cards/5abbe4b7ddc1b351ef961416?fields=labels -q members=true
   trello raw POST /cards --query name="New card" --query idList=5abbe4b7ddc1b351ef961415 --json`,
 		Args: exactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +47,7 @@ automatically. Use -q/--query to add query parameters (repeatable).`,
 			if !rawMethods[method] {
 				return output.WithCode(fmt.Errorf("invalid method %q: must be one of GET, POST, PUT, DELETE", args[0]), output.ExitUsage)
 			}
-			path := args[1]
+			path := normalizeRawPath(args[1])
 			if !strings.HasPrefix(path, "/") {
 				return output.WithCode(fmt.Errorf("invalid path %q: must start with /", path), output.ExitUsage)
 			}
@@ -89,4 +94,19 @@ func (a *App) runRaw(ctx context.Context, method, path string, query url.Values)
 	buf.WriteByte('\n')
 	_, err = out.Out.Write(buf.Bytes())
 	return err
+}
+
+// normalizeRawPath strips a leading REST version prefix ("/1") so paths
+// copied from api.trello.com/1 work with the client, whose base URL already
+// ends in /1. "/1" becomes "/", "/1/cards" becomes "/cards"; anything else is
+// returned unchanged.
+func normalizeRawPath(path string) string {
+	switch {
+	case path == "/1":
+		return "/"
+	case strings.HasPrefix(path, "/1/"):
+		return strings.TrimPrefix(path, "/1")
+	default:
+		return path
+	}
 }

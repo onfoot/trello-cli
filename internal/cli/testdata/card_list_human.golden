@@ -1,3 +1,3 @@
-ID                        NAME     LIST                      CLOSED  DUE
-5abbe4b7ddc1b351ef961417  Ship it  5abbe4b7ddc1b351ef961415  false   -
-5abbe4b7ddc1b351ef961418  Fix bug  5abbe4b7ddc1b351ef961416  false   2026-09-04T12:00:00Z
+ID                        NAME     LABELS         LIST                      CLOSED  DUE
+5abbe4b7ddc1b351ef961417  Ship it  Overdue (red)  5abbe4b7ddc1b351ef961415  false   -
+5abbe4b7ddc1b351ef961418  Fix bug  -              5abbe4b7ddc1b351ef961416  false   2026-09-04T12:00:00Z

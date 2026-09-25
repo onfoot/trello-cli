@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/nomadicworks/trello-cli/internal/output"
+	"github.com/nomadicworks/trello-cli/internal/trello"
 )
 
 func TestCardList(t *testing.T) {
@@ -467,6 +468,82 @@ func TestCardUpdateListIDNoBoard(t *testing.T) {
 	}
 	if gotList != "5abbe4b7ddc1b351ef961415" {
 		t.Errorf("idList = %q, want the raw list id", gotList)
+	}
+}
+
+func TestFormatCardLabels(t *testing.T) {
+	tests := []struct {
+		name string
+		in   []trello.Label
+		want string
+	}{
+		{"none", nil, "-"},
+		{"name and color", []trello.Label{{Name: "Overdue", Color: "red"}}, "Overdue (red)"},
+		{"name only", []trello.Label{{Name: "Overdue"}}, "Overdue"},
+		{"color only", []trello.Label{{Color: "red"}}, "(red)"},
+		{"id only", []trello.Label{{ID: "lbl1"}}, "lbl1"},
+		{"multiple", []trello.Label{{Name: "Overdue", Color: "red"}, {Name: "Needs review", Color: "blue"}}, "Overdue (red), Needs review (blue)"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := formatCardLabels(tt.in); got != tt.want {
+				t.Errorf("formatCardLabels(%+v) = %q, want %q", tt.in, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCardGetHumanShowsLabels(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"id":"c1","name":"Ship it","labels":[{"id":"lbl1","name":"Overdue","color":"red","idBoard":"b1"}]}`)
+	}))
+	defer srv.Close()
+
+	code, stdout, _ := runCLI(t, []string{"card", "get", "c1"}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if !strings.Contains(stdout, "Overdue (red)") {
+		t.Errorf("human output should include the label name and color: %q", stdout)
+	}
+}
+
+func TestCardGetJSONIncludesLabels(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, `{"id":"c1","name":"Ship it","labels":[{"id":"lbl1","name":"Overdue","color":"red","idBoard":"b1"}]}`)
+	}))
+	defer srv.Close()
+
+	code, stdout, _ := runCLI(t, []string{"card", "get", "c1", "--json"}, strings.NewReader(""), credsEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	for _, want := range []string{`"labels"`, `"name": "Overdue"`, `"color": "red"`} {
+		if !strings.Contains(stdout, want) {
+			t.Errorf("JSON output missing %q: %q", want, stdout)
+		}
+	}
+}
+
+func TestCardListHumanShowsLabels(t *testing.T) {
+	srv := fixtureServer(t, map[string]string{
+		"/members/me/boards": testBoardsFixture,
+		"/boards/5abbe4b7ddc1b351ef961414/cards": `[
+			{"id":"c1","name":"Ship it","idList":"l1","idBoard":"5abbe4b7ddc1b351ef961414","labels":[{"id":"lbl1","name":"Overdue","color":"red","idBoard":"5abbe4b7ddc1b351ef961414"}]},
+			{"id":"c2","name":"Fix bug","idList":"l2","idBoard":"5abbe4b7ddc1b351ef961414"}
+		]`,
+	})
+	defer srv.Close()
+
+	code, stdout, _ := runCLI(t, []string{"card", "list"}, strings.NewReader(""), boardEnv(t), srv.URL)
+	if code != output.ExitOK {
+		t.Errorf("exit = %d, want 0", code)
+	}
+	if !strings.Contains(stdout, "LABELS") {
+		t.Errorf("card list should have a LABELS column: %q", stdout)
+	}
+	if !strings.Contains(stdout, "Overdue (red)") {
+		t.Errorf("card list should render the card's labels: %q", stdout)
 	}
 }
 

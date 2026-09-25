@@ -158,7 +158,7 @@ const goldenListsFixture = `[
 ]`
 
 const goldenCardsFixture = `[
-	{"id":"5abbe4b7ddc1b351ef961417","name":"Ship it","idList":"5abbe4b7ddc1b351ef961415","idBoard":"5abbe4b7ddc1b351ef961414","closed":false,"shortLink":"AbCdEf01","pos":65535,"url":"https://trello.com/c/AbCdEf01/ship-it"},
+	{"id":"5abbe4b7ddc1b351ef961417","name":"Ship it","idList":"5abbe4b7ddc1b351ef961415","idBoard":"5abbe4b7ddc1b351ef961414","labels":[{"id":"5abbe4b7ddc1b351ef961419","name":"Overdue","color":"red","idBoard":"5abbe4b7ddc1b351ef961414"}],"closed":false,"shortLink":"AbCdEf01","pos":65535,"url":"https://trello.com/c/AbCdEf01/ship-it"},
 	{"id":"5abbe4b7ddc1b351ef961418","name":"Fix bug","idList":"5abbe4b7ddc1b351ef961416","idBoard":"5abbe4b7ddc1b351ef961414","closed":false,"due":"2026-09-04T12:00:00.000Z","shortLink":"AbCdEf02","pos":131071,"url":"https://trello.com/c/AbCdEf02/fix-bug"}
 ]`
 
@@ -168,6 +168,10 @@ const goldenCardFixture = `{
 	"desc":"Ship the release",
 	"idList":"5abbe4b7ddc1b351ef961415",
 	"idBoard":"5abbe4b7ddc1b351ef961414",
+	"labels":[
+		{"id":"5abbe4b7ddc1b351ef961419","name":"Overdue","color":"red","idBoard":"5abbe4b7ddc1b351ef961414"},
+		{"id":"5abbe4b7ddc1b351ef96141a","name":"Needs review","color":"blue","idBoard":"5abbe4b7ddc1b351ef961414"}
+	],
 	"closed":false,
 	"due":"2026-09-04T12:00:00.000Z",
 	"shortLink":"AbCdEf01",

@@ -2,7 +2,7 @@
 
 > Living plan + progress tracker. Spec: `SPEC.md` (authoritative). Keep this file current.
 
-**Status:** Phase 1 & Phase 2 COMPLETE (M1–M8 APPROVED). Phase 3 completion part DONE (M9 APPROVED). Remaining: board management (Phase 3).
+**Status:** Phase 1 & Phase 2 COMPLETE (M1–M8 APPROVED). Phase 3 completion part DONE (M9 APPROVED). Remaining: board management (Phase 3). Production fixes P1 (raw auth) and P2 (card labels) **DONE & APPROVED** — see "Production issue fixes".
 
 ## Non-Functional Requirements (NFRs)
 
@@ -115,6 +115,36 @@ by design — add a `.gitignore` to avoid committing secrets; Custom Fields retu
 because the Power-Up is disabled on that board.
 
 Final: 385 tests passing; build/vet/staticcheck/race clean.
+
+## Production issue fixes (2026-09-25)
+
+Two defects surfaced during live use (headlines-project board reconciliation).
+Both are fixed with regression tests and reviewer sign-off (APPROVED).
+
+| ID | Issue | Root cause | Fix | Status |
+|----|-------|-----------|-----|--------|
+| P1 | `raw` passthrough returns HTTP 401 `invalid key` for REST-shaped paths while native verbs succeed under identical credentials | `Client.do` builds `baseURL+path`, then blindly appends `?`+encoded query. `key`/`token` are always injected, so a path that already contains `?` (e.g. `/cards/x?fields=labels`) becomes `…?fields=labels?key=…&token=…` — the credentials are swallowed into the first param's value. Native verbs never embed `?`, so they are unaffected. | `Client.do` now `url.Parse`s `baseURL+path`, merges any embedded query with the caller query, and sets `key`/`token` last (credentials win); `raw` strips a leading `/1` REST version prefix. | **done** |
+| P2 | Card read output omits labels entirely, so label attachment cannot be verified through the CLI | `cardFields` (`cards.go`) excludes `labels` and `Card` (`types.go`) has no `Labels` field. | `Card` gains `Labels []Label json:"labels,omitempty"`; `labels` is requested on card reads **and** writes; human output adds a `Labels` row / `LABELS` column and `--json` carries the array; card goldens regenerated. | **done** |
+
+**Verification (reviewer):** `gofmt -l .` clean; `go build ./...`, `go vet ./...`,
+`go test -race -count=1 ./...` all pass (cli/config/output/trello ok); `staticcheck`
+not installed. The reviewer independently reverted the production files to HEAD
+(keeping the new tests) and confirmed every new test fails against the old code
+(P1: `key=""`, `fields="labels?key=k"`; P2: `fields` assertion), then restored the
+tree. No typed-call regressions; query encoding sorted (deterministic); goldens
+stable and only the four card goldens changed.
+
+Residual/optional follow-ups (none blocking):
+- `normalizeRawPath` does not strip `/1?query` (e.g. `/1?fields=x`); realistic forms
+  (`/1`, `/1/`, `/1/cards/x?…`) work. Help wording slightly overpromises.
+- `fields=cardFields` is sent on card writes where `trello-api.json` doesn't declare
+  it; Trello ignores unknown query params and its default card serialization already
+  includes `labels`, so this is almost certainly harmless. A live smoke of
+  `card create/update/move/archive` would close the question.
+- Pre-existing (not a regression): `NetworkError` text can include the full request
+  URL with `key`/`token` on transport failures. Worth redacting in a separate change.
+
+Constraints: credentials are never logged/inlined (read from config per call); keep `go vet` / `staticcheck` / `go test -race ./...` clean; no live network in tests.
 
 ## Polish backlog (for M4)
 

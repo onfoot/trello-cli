@@ -90,9 +90,9 @@ func (a *App) runCardList(ctx context.Context, listRef string) error {
 	}
 	rows := make([][]string, 0, len(cards))
 	for _, c := range cards {
-		rows = append(rows, []string{c.ID, c.Name, c.IDList, strconv.FormatBool(c.Closed), formatDue(c.Due)})
+		rows = append(rows, []string{c.ID, c.Name, formatCardLabels(c.Labels), c.IDList, strconv.FormatBool(c.Closed), formatDue(c.Due)})
 	}
-	return out.Table([]string{"ID", "NAME", "LIST", "CLOSED", "DUE"}, rows)
+	return out.Table([]string{"ID", "NAME", "LABELS", "LIST", "CLOSED", "DUE"}, rows)
 }
 
 // resolveListRef resolves a --list reference to a list id. A 24-hex id is
@@ -117,7 +117,7 @@ func (a *App) newCardGetCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "get <id>",
 		Short: "Get a card by id",
-		Long:  `Get a single card by its id.`,
+		Long:  `Get a single card by its id. The output includes the card's labels.`,
 		Example: `  trello card get 5abbe4b7ddc1b351ef961414
   trello card get 5abbe4b7ddc1b351ef961414 --json`,
 		Args: exactArgs(1),
@@ -393,6 +393,7 @@ func (a *App) renderCard(c *trello.Card) error {
 	rows = append(rows,
 		[2]string{"List", c.IDList},
 		[2]string{"Board", c.IDBoard},
+		[2]string{"Labels", formatCardLabels(c.Labels)},
 		[2]string{"Closed", strconv.FormatBool(c.Closed)},
 		[2]string{"Due", formatDue(c.Due)},
 		[2]string{"Pos", formatPos(c.Pos)},

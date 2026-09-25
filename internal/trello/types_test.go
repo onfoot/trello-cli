@@ -2,6 +2,7 @@ package trello
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -32,6 +33,45 @@ func TestDecodeCard(t *testing.T) {
 	}
 	if c.DateLastActivity == nil || c.DateLastActivity.IsZero() {
 		t.Error("dateLastActivity should be parsed")
+	}
+}
+
+func TestCardLabelsJSONRoundTrip(t *testing.T) {
+	c := Card{
+		ID:   "c1",
+		Name: "Ship it",
+		Labels: []Label{
+			{ID: "lbl1", IDBoard: "b1", Name: "Overdue", Color: "red"},
+		},
+	}
+	data, err := json.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), `"labels"`) {
+		t.Errorf("marshalled card missing labels key: %s", data)
+	}
+	var got Card
+	if err := json.Unmarshal(data, &got); err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Labels) != 1 {
+		t.Fatalf("expected 1 label, got %d: %+v", len(got.Labels), got.Labels)
+	}
+	if got.Labels[0].Name != "Overdue" || got.Labels[0].Color != "red" || got.Labels[0].IDBoard != "b1" {
+		t.Errorf("unexpected label after round-trip: %+v", got.Labels[0])
+	}
+}
+
+// A card with no labels must omit the labels key so --json stays deterministic
+// and unchanged for label-free cards.
+func TestCardLabelsOmittedWhenEmpty(t *testing.T) {
+	data, err := json.Marshal(Card{ID: "c2", Name: "No labels"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(data), `"labels"`) {
+		t.Errorf("empty labels should be omitted: %s", data)
 	}
 }
 

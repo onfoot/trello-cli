@@ -70,6 +70,75 @@ func TestDoMergesCallerQuery(t *testing.T) {
 	}
 }
 
+// A query string embedded in path must be merged with the injected credentials
+// rather than swallowing them.
+func TestDoMergesEmbeddedQueryInPath(t *testing.T) {
+	var gotPath, gotKey, gotToken, gotFields string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotPath = r.URL.Path
+		gotKey = r.URL.Query().Get("key")
+		gotToken = r.URL.Query().Get("token")
+		gotFields = r.URL.Query().Get("fields")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	c := New("k", "t", srv.URL, srv.Client())
+	var out map[string]string
+	if err := c.Do(context.Background(), http.MethodGet, "/cards/c1?fields=labels", nil, nil, &out); err != nil {
+		t.Fatal(err)
+	}
+	if gotPath != "/cards/c1" {
+		t.Errorf("path = %q, want /cards/c1", gotPath)
+	}
+	if gotKey != "k" || gotToken != "t" {
+		t.Errorf("key/token injection: key=%q token=%q", gotKey, gotToken)
+	}
+	if gotFields != "labels" {
+		t.Errorf("embedded fields = %q, want labels", gotFields)
+	}
+}
+
+// An embedded path query and a caller url.Values both arrive.
+func TestDoMergesEmbeddedAndCallerQuery(t *testing.T) {
+	var gotFields, gotMembers string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotFields = r.URL.Query().Get("fields")
+		gotMembers = r.URL.Query().Get("members")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	c := New("k", "t", srv.URL, srv.Client())
+	q := url.Values{"members": {"true"}}
+	if err := c.Do(context.Background(), http.MethodGet, "/cards/c1?fields=labels", q, nil, &map[string]string{}); err != nil {
+		t.Fatal(err)
+	}
+	if gotFields != "labels" || gotMembers != "true" {
+		t.Errorf("merged query: fields=%q members=%q, want labels/true", gotFields, gotMembers)
+	}
+}
+
+// Injected credentials must win over any user-supplied key/token values.
+func TestDoCredentialsWinOverCallerQuery(t *testing.T) {
+	var gotKey, gotToken string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotKey = r.URL.Query().Get("key")
+		gotToken = r.URL.Query().Get("token")
+		fmt.Fprint(w, `{}`)
+	}))
+	defer srv.Close()
+
+	c := New("real-key", "real-token", srv.URL, srv.Client())
+	q := url.Values{"key": {"spoofed-key"}, "token": {"spoofed-token"}}
+	if err := c.Do(context.Background(), http.MethodGet, "/cards/c1", q, nil, &map[string]string{}); err != nil {
+		t.Fatal(err)
+	}
+	if gotKey != "real-key" || gotToken != "real-token" {
+		t.Errorf("credentials must win: key=%q token=%q", gotKey, gotToken)
+	}
+}
+
 func TestStatusErrorMapping(t *testing.T) {
 	tests := []struct {
 		name     string

@@ -66,18 +66,29 @@ func (c *Client) do(ctx context.Context, method, path string, query url.Values, 
 	if query == nil {
 		query = url.Values{}
 	}
+
+	// Merge any query string embedded in path with the caller's query values
+	// so credentials are never swallowed by a path like "/cards/c1?fields=labels".
+	u, err := url.Parse(c.BaseURL + path)
+	if err != nil {
+		return &NetworkError{Op: "request", Cause: err}
+	}
+	merged := u.Query()
+	for k, vs := range query {
+		for _, v := range vs {
+			merged.Add(k, v)
+		}
+	}
+	// Credentials win over any user-supplied values.
 	if c.Key != "" {
-		query.Set("key", c.Key)
+		merged.Set("key", c.Key)
 	}
 	if c.Token != "" {
-		query.Set("token", c.Token)
+		merged.Set("token", c.Token)
 	}
-	u := c.BaseURL + path
-	if len(query) > 0 {
-		u += "?" + query.Encode()
-	}
+	u.RawQuery = merged.Encode()
 
-	req, err := http.NewRequestWithContext(ctx, method, u, body)
+	req, err := http.NewRequestWithContext(ctx, method, u.String(), body)
 	if err != nil {
 		return &NetworkError{Op: "request", Cause: err}
 	}

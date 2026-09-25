@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -34,7 +35,7 @@ func TestListBoardCards(t *testing.T) {
 	if len(cards) != 2 || cards[0].Name != "Ship it" || cards[1].IDList != "l2" {
 		t.Errorf("unexpected cards: %+v", cards)
 	}
-	if gotFields != "id,name,desc,idList,idBoard,closed,due,shortLink,pos,url" {
+	if gotFields != "id,name,desc,idList,idBoard,closed,due,shortLink,pos,url,labels" {
 		t.Errorf("fields = %q", gotFields)
 	}
 }
@@ -80,8 +81,41 @@ func TestGetCard(t *testing.T) {
 	}
 }
 
+func TestGetCardDecodesLabels(t *testing.T) {
+	var gotFields string
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/cards/c1" {
+			t.Errorf("path = %q", r.URL.Path)
+		}
+		gotFields = r.URL.Query().Get("fields")
+		fmt.Fprint(w, `{"id":"c1","name":"Ship it","labels":[
+			{"id":"lbl1","idBoard":"b1","name":"Overdue","color":"red"},
+			{"id":"lbl2","idBoard":"b1","name":"","color":"blue"}
+		]}`)
+	}))
+	defer srv.Close()
+
+	c := New("k", "t", srv.URL, srv.Client())
+	card, err := c.GetCard(context.Background(), "c1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(gotFields, "labels") {
+		t.Errorf("fields = %q, want it to request labels", gotFields)
+	}
+	if len(card.Labels) != 2 {
+		t.Fatalf("expected 2 labels, got %d: %+v", len(card.Labels), card.Labels)
+	}
+	if card.Labels[0].ID != "lbl1" || card.Labels[0].Name != "Overdue" || card.Labels[0].Color != "red" || card.Labels[0].IDBoard != "b1" {
+		t.Errorf("unexpected first label: %+v", card.Labels[0])
+	}
+	if card.Labels[1].Name != "" || card.Labels[1].Color != "blue" {
+		t.Errorf("unexpected second label: %+v", card.Labels[1])
+	}
+}
+
 func TestCreateCard(t *testing.T) {
-	var gotName, gotList, gotDesc, gotPos, gotDue string
+	var gotName, gotList, gotDesc, gotPos, gotDue, gotFields string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			t.Errorf("method = %s, want POST", r.Method)
@@ -91,6 +125,7 @@ func TestCreateCard(t *testing.T) {
 		}
 		q := r.URL.Query()
 		gotName, gotList, gotDesc, gotPos, gotDue = q.Get("name"), q.Get("idList"), q.Get("desc"), q.Get("pos"), q.Get("due")
+		gotFields = q.Get("fields")
 		fmt.Fprint(w, `{"id":"c1","name":"Ship it","idList":"l1"}`)
 	}))
 	defer srv.Close()
@@ -107,6 +142,9 @@ func TestCreateCard(t *testing.T) {
 	}
 	if gotName != "Ship it" || gotList != "l1" || gotDesc != "details" || gotPos != "65535" || gotDue != "2026-09-04T12:00:00Z" {
 		t.Errorf("query params: name=%q list=%q desc=%q pos=%q due=%q", gotName, gotList, gotDesc, gotPos, gotDue)
+	}
+	if !strings.Contains(gotFields, "labels") {
+		t.Errorf("create fields = %q, want it to request labels", gotFields)
 	}
 }
 

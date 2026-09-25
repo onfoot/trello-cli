@@ -8,7 +8,7 @@ import (
 )
 
 // cardFields is the minimal field set requested for cards.
-const cardFields = "id,name,desc,idList,idBoard,closed,due,shortLink,pos,url"
+const cardFields = "id,name,desc,idList,idBoard,closed,due,shortLink,pos,url,labels"
 
 // CardCreate holds the fields for POST /cards.
 type CardCreate struct {
@@ -62,7 +62,7 @@ func (c *Client) GetCard(ctx context.Context, id string) (*Card, error) {
 
 // CreateCard creates a card in a list. Writes use the query-param convention.
 func (c *Client) CreateCard(ctx context.Context, in CardCreate) (*Card, error) {
-	q := url.Values{"name": {in.Name}, "idList": {in.IDList}}
+	q := url.Values{"name": {in.Name}, "idList": {in.IDList}, "fields": {cardFields}}
 	if in.Desc != "" {
 		q.Set("desc", in.Desc)
 	}
@@ -81,7 +81,7 @@ func (c *Client) CreateCard(ctx context.Context, in CardCreate) (*Card, error) {
 
 // UpdateCard updates a card's fields. Setting IDList moves the card.
 func (c *Client) UpdateCard(ctx context.Context, id string, u CardUpdate) (*Card, error) {
-	q := url.Values{}
+	q := url.Values{"fields": {cardFields}}
 	if u.Name != nil {
 		q.Set("name", *u.Name)
 	}
@@ -109,7 +109,7 @@ func (c *Client) UpdateCard(ctx context.Context, id string, u CardUpdate) (*Card
 
 // MoveCard moves a card to another list via PUT /cards/{id}/idList.
 func (c *Client) MoveCard(ctx context.Context, id, listID string) (*Card, error) {
-	q := url.Values{"value": {listID}}
+	q := url.Values{"value": {listID}, "fields": {cardFields}}
 	var card Card
 	if err := c.Do(ctx, http.MethodPut, "/cards/"+id+"/idList", q, nil, &card); err != nil {
 		return nil, err
@@ -119,7 +119,7 @@ func (c *Client) MoveCard(ctx context.Context, id, listID string) (*Card, error)
 
 // ArchiveCard closes (archives) a card.
 func (c *Client) ArchiveCard(ctx context.Context, id string) (*Card, error) {
-	q := url.Values{"closed": {"true"}}
+	q := url.Values{"closed": {"true"}, "fields": {cardFields}}
 	var card Card
 	if err := c.Do(ctx, http.MethodPut, "/cards/"+id, q, nil, &card); err != nil {
 		return nil, err
